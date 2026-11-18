@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>땡스데이 물품 체크리스트</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --bg:#f6f5fb; --card:#ffffff; --ink:#1f1b2e; --sub:#6b6680; --line:#e4e1ee;
+  --accent:#5b45c9; --accent-soft:#ece8ff; --ok:#1f8a5b; --ok-soft:#e3f5ec; --warn:#b4551d; --warn-soft:#fdf0e6;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15131d; --card:#1f1c2a; --ink:#ece9f6; --sub:#a39fb8; --line:#332f44;
+    --accent:#a593ff; --accent-soft:#2c2645; --ok:#5fd3a0; --ok-soft:#1b3329; --warn:#f2a36b; --warn-soft:#3a2819;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15131d; --card:#1f1c2a; --ink:#ece9f6; --sub:#a39fb8; --line:#332f44;
+  --accent:#a593ff; --accent-soft:#2c2645; --ok:#5fd3a0; --ok-soft:#1b3329; --warn:#f2a36b; --warn-soft:#3a2819;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  font-size:16px;line-height:1.55;-webkit-text-size-adjust:100%}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px 64px}
+header{padding:24px 0 8px}
+.eyebrow{font-size:13px;color:var(--accent);font-weight:700;letter-spacing:.02em}
+h1{font-size:22px;margin:4px 0 6px;line-height:1.35}
+.meta{font-size:14px;color:var(--sub)}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0;display:flex;gap:8px}
+nav button{flex:1;min-width:0;border:1px solid var(--line);background:var(--card);color:var(--ink);
+  font:inherit;font-weight:700;font-size:15px;padding:10px 4px;border-radius:12px;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+nav small{display:block;font-weight:500;font-size:12px;opacity:.85}
+@media (max-width:420px){nav{gap:6px} nav button{font-size:14px;padding:9px 2px} nav small{font-size:11px}}
+h2.sub{font-size:16px;margin:18px 0 8px}
+.guide-title{font-size:20px;margin:18px 0 4px}
+section{display:none}
+section.on{display:block}
+h2{font-size:18px;margin:22px 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
+.card h3{margin:0 0 2px;font-size:17px}
+.card .where{font-size:13px;color:var(--sub);margin-bottom:10px}
+.note{background:var(--accent-soft);border-radius:12px;padding:12px 14px;font-size:14px;margin:12px 0}
+.warn{background:var(--warn-soft);color:var(--ink);border-left:4px solid var(--warn)}
+.note b{color:var(--accent)} .warn b{color:var(--warn)}
+ol.steps{margin:0;padding-left:20px} ol.steps li{margin:4px 0}
+label.item{display:flex;align-items:center;gap:12px;padding:11px 2px;border-top:1px solid var(--line);cursor:pointer}
+label.item:first-of-type{border-top:0}
+label.item input{width:22px;height:22px;flex:none;accent-color:var(--ok)}
+label.item .name{flex:1}
+label.item .name small{display:block;color:var(--sub);font-size:13px}
+label.item .qty{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+label.item:has(input:checked) .name,label.item:has(input:checked) .qty{color:var(--sub);text-decoration:line-through}
+.prog{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--sub);margin:4px 0 0}
+.bar{flex:1;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .2s}
+.done-badge{display:none;font-size:13px;font-weight:700;color:var(--ok);background:var(--ok-soft);padding:2px 8px;border-radius:99px}
+.card.done .done-badge{display:inline-block}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--sub);font-weight:600;font-size:13px}
+.places{table-layout:fixed}
+.places col.region{width:64px}
+.places td[rowspan]{vertical-align:middle;white-space:nowrap}
+td.n{text-align:right;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.reset{display:block;margin:28px auto 0;background:none;border:1px solid var(--line);color:var(--sub);
+  font:inherit;font-size:14px;padding:8px 16px;border-radius:10px;cursor:pointer}
+footer{margin-top:24px;font-size:13px;color:var(--sub);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">SK하이닉스 양산총괄 땡스데이</div>
+  <h1>이번 주 물품 수령 · 건물별 소분 체크리스트</h1>
+  <div class="meta">설치 11/23(월) · 운영 11/24(화)~25(수) · 문의 김석윤</div>
+</header>
+
+<nav role="tablist">
+  <button role="tab" data-tab="common" aria-selected="true">먼저 보기<small>수령·포장 방법</small></button>
+  <button role="tab" data-tab="icheon" aria-selected="false">이천<small>2개 건물</small></button>
+  <button role="tab" data-tab="cheongju" aria-selected="false">청주<small>3개 건물</small></button>
+  <button role="tab" data-tab="guide" aria-selected="false">정영 선임<small>인수인계</small></button>
+</nav>
+
+<!-- 먼저 보기 -->
+<section id="common" class="on">
+  <div class="note">
+    <b>무엇을 하나요?</b><br>
+    이번 주(금요일 유력) NHR로 들어오는 물건을 받아서, <b>장소별로 한 묶음씩</b> 나눠 두는 일이에요.
+    월요일(11/23) 설치 때 묶음째로 SK하이닉스 총무팀에서 각 건물에 배치해주십니다.
+  </div>
+
+  <h2>장소 (묶음 5개)</h2>
+  <div class="card">
+    <table class="places">
+      <colgroup><col class="region"><col></colgroup>
+      <tr><th>지역</th><th>건물</th></tr>
+      <tr><td rowspan="2"><b>이천</b></td><td>SUPEX CENTER</td></tr>
+      <tr><td>P&amp;T4</td></tr>
+      <tr><td rowspan="3"><b>청주</b></td><td>4캠 SUPEX CENTER <span class="meta">(M15X 1층 포함)</span></td></tr>
+      <tr><td>3캠 M11</td></tr>
+      <tr><td>2캠 P&amp;T3</td></tr>
+    </table>
+  </div>
+
+  <h2>11/23(월) 운송 · 인계</h2>
+  <div class="card">
+    <p class="meta" style="margin:0 0 8px">이천 묶음과 청주 묶음은 퀵으로 따로 보내요. <b>두 지역 묶음이 섞이지 않게 따로 모아 두세요.</b></p>
+    <table class="places">
+      <colgroup><col class="region"><col></colgroup>
+      <tr><th>지역</th><th>보내는 곳 · 인계 방법</th></tr>
+      <tr><td><b>이천</b></td><td>SK하이닉스 <b>대산주차장</b> (경기 이천시 대산로 281)<br><span class="meta">하이닉스 총무 차량에 인계 · SUPEX CENTER, P&amp;T4 묶음</span></td></tr>
+      <tr><td><b>청주</b></td><td>SK하이닉스 <b>청주3공장 정문</b><br><span class="meta">충북 청주시 흥덕구 직지대로 337 · 방문객실 앞에서 총무팀에 인계 (코인·X배너 등은 조혜미 TL에게 인계) · 4캠 SUPEX, M11, P&amp;T3 묶음</span></td></tr>
+    </table>
+    <p class="meta" style="margin:8px 0 0">현장 담당자 연락처는 김석윤이 퀵 기사님께 따로 전달해요.</p>
+  </div>
+
+  <h2>순서</h2>
+  <div class="card">
+    <ol class="steps">
+      <li>아래 <b>'이번 주 내로 입고되는 물품'</b>이 다 왔는지, 수량이 맞는지 확인해요.</li>
+      <li>건물마다 상자를 준비하고, 겉면에 <b>지역 + 건물명</b>(예: 이천 SUPEX CENTER)을 크게 써요.<br><span class="meta">캡슐머신·CPO 아크릴은 상자에 넣지 않고 퀵 트럭에 그대로 실어요.<br>상자는 1층 창고 구역에 구비해두었어요.</span></li>
+      <li><b>청주 3개 건물의 코인·X배너</b>는 현장에서 조혜미 TL에게 따로 인계해요. 건물 상자에 넣지 말고, 건물명을 적어 <b>따로 묶어</b> 주세요.</li>
+      <li><b>이천 / 청주</b> 탭을 열어 건물별 수량대로 나눠 담고, 담은 항목에 체크해요.</li>
+      <li>다 담으면 상자를 닫기 전에 <b>사진</b>을 찍어 단톡방에 올려 주세요.</li>
+    </ol>
+  </div>
+
+  <h2>이번 주(금요일 유력) 내로 입고되는 물품</h2>
+  <div class="card" data-group="in">
+    <label class="item"><input type="checkbox" data-k="in-hot"><span class="name">핫팩 세트 (각인)<small>하이닉스에서 보냄</small></span><span class="qty">750개</span></label>
+    <label class="item"><input type="checkbox" data-k="in-oral"><span class="name">구강케어 세트 (각인)<small>하이닉스에서 보냄</small></span><span class="qty">750개</span></label>
+    <label class="item"><input type="checkbox" data-k="in-xb"><span class="name">X배너 (일반형 10 + 로비 안내형 3)<small>고려기획 · 장소별로 포장되어 옴 (M15X 1층분은 청주 SUPEX 포장에 포함)</small></span><span class="qty">13개</span></label>
+    <label class="item"><input type="checkbox" data-k="in-coin"><span class="name">아크릴 코인 보관통<small>고려기획 · X배너와 같이 옴</small></span><span class="qty">6개</span></label>
+    <label class="item"><input type="checkbox" data-k="h-machine"><span class="name">캡슐머신 (2단 적재)<small>우주완구제작소 · 2대를 쌓은 1세트 기준 · 이천 SUPEX 5세트 · 나머지 건물 3세트씩</small></span><span class="qty">17세트 (34대)</span></label>
+    <label class="item"><input type="checkbox" data-k="in-capsule"><span class="name">캡슐 (임원 메시지 + 기념품 메시지 들어 있음)<small>우주완구제작소 · 건물별 박스로 옴, 겉면에 건물명·기념품 표기 (소분 불필요) · 총 17박스</small></span><span class="qty">3,500개</span></label>
+    <label class="item"><input type="checkbox" data-k="in-empty"><span class="name">빈 캡슐 (CPO 아크릴 채우기용)<small>우주완구제작소 · 이천 SUPEX용 · 대 박스 5개, 겉면에 '빈캡슐' 표기</small></span><span class="qty">2,500개</span></label>
+    <label class="item"><input type="checkbox" data-k="in-token"><span class="name">코인<small>우주완구제작소 · 건물별로 나눠서 옴 (소분 불필요)</small></span><span class="qty">3,400개</span></label>
+    <label class="item"><input type="checkbox" data-k="h-cpo"><span class="name">CPO 아크릴 (글자 3개)<small>위브먼트 · 이천 SUPEX에만 설치</small></span><span class="qty">1세트</span></label>
+  </div>
+
+  <h2>이미 NHR에 있는 물건(1층 창고)</h2>
+  <div class="card" data-group="have">
+    <label class="item"><input type="checkbox" data-k="h-haribo"><span class="name">하리보 (4가지 맛)<small>11/16 전량 도착 · 건물별로 맛 고르게 배분 작업 필요 (도움 요청) · 맛별 수량은 정확하지 않아도 괜찮아요</small></span><span class="qty">2,000개</span></label>
+    <label class="item"><input type="checkbox" data-k="h-tag"><span class="name">STAFF 명찰<small>NHR에 준비되어 있음</small></span><span class="qty">20개</span></label>
+    <label class="item"><input type="checkbox" data-k="h-a4"><span class="name">참여 안내 A4 출력물 + A4 거치대<small>스태프가 준비</small></span><span class="qty">각 10개</span></label>
+    <label class="item"><input type="checkbox" data-k="h-box"><span class="name">검은색 아크릴 박스 + 화이트 마카<small>메시지 보관용 · 1층 창고</small></span><span class="qty">각 5개</span></label>
+    <label class="item"><input type="checkbox" data-k="h-cloth"><span class="name">테이블보<small>건물당 4장</small></span><span class="qty">20장</span></label>
+  </div>
+
+  <div class="note warn">
+    <b>이럴 땐 바로 연락 주세요</b><br>
+    · 수량이 모자라거나 파손된 물건이 있을 때<br>
+    · 금요일 오후까지 물건이 안 올 때 (특히 핫팩·구강케어)<br>
+    · X배너가 장소별로 나뉘어 오지 않았을 때
+  </div>
+
+  <h2>이번 묶음에 없는 것</h2>
+  <div class="card">
+    <p class="meta" style="margin:0 0 6px">아래 물건은 금요일에 챙기지 않아도 돼요. 따로 준비 중이에요.</p>
+    <table>
+      <tr><th>물건</th><th>준비</th></tr>
+      <tr><td>감사 메시지 포스트잇 6,000장</td><td>지와이컴퍼니 · 11/23 설치 때 받음</td></tr>
+      <tr><td>메시지월 (허니콤보드)</td><td>카멜레온 프린팅</td></tr>
+      <tr><td>차단봉</td><td>하이닉스 자체 준비</td></tr>
+      <tr><td>네임펜</td><td>하이닉스 확인 중</td></tr>
+    </table>
+  </div>
+
+  <h2>건물별 한눈에 보기</h2>
+  <div class="card" style="overflow-x:auto">
+    <table>
+      <tr><th>건물</th><th style="text-align:right">핫팩</th><th style="text-align:right">구강</th><th style="text-align:right">하리보</th><th style="text-align:right">X배너</th><th style="text-align:right">보관통</th></tr>
+      <tr><td>이천 SUPEX</td><td class="n">220</td><td class="n">220</td><td class="n">600</td><td class="n">3</td><td class="n">2</td></tr>
+      <tr><td>이천 P&amp;T4</td><td class="n">200</td><td class="n">200</td><td class="n">500</td><td class="n">2</td><td class="n">1</td></tr>
+      <tr><td>청주 SUPEX<br><span class="meta">M15X 1층 포함</span></td><td class="n">130</td><td class="n">130</td><td class="n">300</td><td class="n">5</td><td class="n">1</td></tr>
+      <tr><td>청주 M11</td><td class="n">100</td><td class="n">100</td><td class="n">300</td><td class="n">2</td><td class="n">1</td></tr>
+      <tr><td>청주 P&amp;T3</td><td class="n">100</td><td class="n">100</td><td class="n">300</td><td class="n">1</td><td class="n">1</td></tr>
+      <tr><th>합계</th><td class="n">750</td><td class="n">750</td><td class="n">2,000</td><td class="n">13</td><td class="n">6</td></tr>
+    </table>
+    <p class="meta" style="margin:8px 0 0">명찰 4개 · A4 안내물 2개 · A4 거치대 2개 · 아크릴 박스 1개 · 마카 1개 · 테이블보 4장은 5개 건물 모두 같아요.<br>캡슐머신은 2대를 쌓은 1세트 기준으로 이천 SUPEX 5세트(10대), 나머지 건물 3세트(6대)씩이에요. CPO 아크릴은 이천 SUPEX에만 가요.</p>
+  </div>
+</section>
+
+<!-- 이천 -->
+<section id="icheon">
+  <div class="prog"><span class="bar"><i></i></span><span class="count">0 / 0</span></div>
+
+  <div class="card bld">
+    <h3>이천 SUPEX CENTER <span class="done-badge">완료</span></h3>
+    <div class="where">캡슐머신 10대 · 메시지월 4m</div>
+    <label class="item"><input type="checkbox" data-k="is-hot"><span class="name">핫팩 세트</span><span class="qty">220개</span></label>
+    <label class="item"><input type="checkbox" data-k="is-oral"><span class="name">구강케어 세트</span><span class="qty">220개</span></label>
+    <label class="item"><input type="checkbox" data-k="is-haribo"><span class="name">하리보<small>4가지 맛 고르게 (맛별 수량은 정확하지 않아도 OK)</small></span><span class="qty">600개</span></label>
+    <label class="item"><input type="checkbox" data-k="is-xb"><span class="name">X배너 일반형</span><span class="qty">3개</span></label>
+    <label class="item"><input type="checkbox" data-k="is-coin"><span class="name">아크릴 코인 보관통</span><span class="qty">2개</span></label>
+    <label class="item"><input type="checkbox" data-k="is-tag"><span class="name">STAFF 명찰</span><span class="qty">4개</span></label>
+    <label class="item"><input type="checkbox" data-k="is-a4"><span class="name">참여 안내 A4 + 거치대</span><span class="qty">각 2개</span></label>
+    <label class="item"><input type="checkbox" data-k="is-box"><span class="name">검은 아크릴 박스 + 화이트 마카</span><span class="qty">각 1개</span></label>
+    <label class="item"><input type="checkbox" data-k="is-capsule"><span class="name">캡슐 박스 (업체 포장 그대로)<small>핫팩 220 · 양치 220 · 젤리 300×2 = 1,040개</small></span><span class="qty">4박스</span></label>
+    <label class="item"><input type="checkbox" data-k="is-empty"><span class="name">빈 캡슐 박스 (CPO 아크릴용)<small>겉면 '빈캡슐' 표기 · 2,500개</small></span><span class="qty">5박스</span></label>
+    <label class="item"><input type="checkbox" data-k="is-token"><span class="name">코인<small>업체 포장 그대로</small></span><span class="qty">1,000개</span></label>
+    <label class="item"><input type="checkbox" data-k="is-machine"><span class="name">캡슐머신 (2단)</span><span class="qty">5세트 (10대)</span></label>
+    <label class="item"><input type="checkbox" data-k="is-cpo"><span class="name">CPO 아크릴</span><span class="qty">1세트</span></label>
+    <label class="item"><input type="checkbox" data-k="is-cloth"><span class="name">테이블보</span><span class="qty">4장</span></label>
+  </div>
+
+  <div class="card bld">
+    <h3>이천 P&amp;T4 <span class="done-badge">완료</span></h3>
+    <div class="where">캡슐머신 6대 · 메시지월 3m</div>
+    <label class="item"><input type="checkbox" data-k="ip-hot"><span class="name">핫팩 세트</span><span class="qty">200개</span></label>
+    <label class="item"><input type="checkbox" data-k="ip-oral"><span class="name">구강케어 세트</span><span class="qty">200개</span></label>
+    <label class="item"><input type="checkbox" data-k="ip-haribo"><span class="name">하리보<small>4가지 맛 고르게 (맛별 수량은 정확하지 않아도 OK)</small></span><span class="qty">500개</span></label>
+    <label class="item"><input type="checkbox" data-k="ip-xb"><span class="name">X배너 일반형</span><span class="qty">2개</span></label>
+    <label class="item"><input type="checkbox" data-k="ip-coin"><span class="name">아크릴 코인 보관통</span><span class="qty">1개</span></label>
+    <label class="item"><input type="checkbox" data-k="ip-tag"><span class="name">STAFF 명찰</span><span class="qty">4개</span></label>
+    <label class="item"><input type="checkbox" data-k="ip-a4"><span class="name">참여 안내 A4 + 거치대</span><span class="qty">각 2개</span></label>
+    <label class="item"><input type="checkbox" data-k="ip-box"><span class="name">검은 아크릴 박스 + 화이트 마카</span><span class="qty">각 1개</span></label>
+    <label class="item"><input type="checkbox" data-k="ip-capsule"><span class="name">캡슐 박스 (업체 포장 그대로)<small>핫팩 200 · 양치 200 · 젤리 250×2 = 900개</small></span><span class="qty">4박스</span></label>
+    <label class="item"><input type="checkbox" data-k="ip-token"><span class="name">코인<small>업체 포장 그대로</small></span><span class="qty">600개</span></label>
+    <label class="item"><input type="checkbox" data-k="ip-machine"><span class="name">캡슐머신 (2단)</span><span class="qty">3세트 (6대)</span></label>
+    <label class="item"><input type="checkbox" data-k="ip-cloth"><span class="name">테이블보</span><span class="qty">4장</span></label>
+  </div>
+
+  <div class="note">이천 합계: 핫팩 420 · 구강케어 420 · 하리보 1,100 · X배너 5 · 보관통 3 · 캡슐머신 8세트(16대) · 테이블보 8 · CPO 아크릴 1세트 · 코인 1,600<br>캡슐 박스 8 (SUPEX 4 · P&amp;T4 4) + <b>빈 캡슐 박스 5는 SUPEX에만</b></div>
+</section>
+
+<!-- 청주 -->
+<section id="cheongju">
+  <div class="prog"><span class="bar"><i></i></span><span class="count">0 / 0</span></div>
+
+  <div class="card bld">
+    <h3>청주 4캠 SUPEX CENTER <span class="done-badge">완료</span></h3>
+    <div class="where">캡슐머신 6대 · 메시지월 2m · 로비 안내형 X배너는 식당 2 + M15X 1층 1</div>
+    <label class="item"><input type="checkbox" data-k="cs-hot"><span class="name">핫팩 세트</span><span class="qty">130개</span></label>
+    <label class="item"><input type="checkbox" data-k="cs-oral"><span class="name">구강케어 세트</span><span class="qty">130개</span></label>
+    <label class="item"><input type="checkbox" data-k="cs-haribo"><span class="name">하리보<small>4가지 맛 고르게 (맛별 수량은 정확하지 않아도 OK)</small></span><span class="qty">300개</span></label>
+    <label class="item"><input type="checkbox" data-k="cs-xb"><span class="name">X배너 일반형<small>조혜미 TL 인계용으로 따로 묶기</small></span><span class="qty">2개</span></label>
+    <label class="item"><input type="checkbox" data-k="cs-xbl"><span class="name">X배너 로비 안내형<small>식당 2 · M15X 1층 1 · 조혜미 TL 인계용으로 따로 묶기</small></span><span class="qty">3개</span></label>
+    <label class="item"><input type="checkbox" data-k="cs-coin"><span class="name">아크릴 코인 보관통</span><span class="qty">1개</span></label>
+    <label class="item"><input type="checkbox" data-k="cs-tag"><span class="name">STAFF 명찰</span><span class="qty">4개</span></label>
+    <label class="item"><input type="checkbox" data-k="cs-a4"><span class="name">참여 안내 A4 + 거치대</span><span class="qty">각 2개</span></label>
+    <label class="item"><input type="checkbox" data-k="cs-box"><span class="name">검은 아크릴 박스 + 화이트 마카</span><span class="qty">각 1개</span></label>
+    <label class="item"><input type="checkbox" data-k="cs-capsule"><span class="name">캡슐 박스 (업체 포장 그대로)<small>핫팩 130 · 양치 130 · 젤리 300 = 560개</small></span><span class="qty">3박스</span></label>
+    <label class="item"><input type="checkbox" data-k="cs-token"><span class="name">코인<small>업체 포장 그대로 · 조혜미 TL 인계용으로 따로 묶기</small></span><span class="qty">600개</span></label>
+    <label class="item"><input type="checkbox" data-k="cs-machine"><span class="name">캡슐머신 (2단)</span><span class="qty">3세트 (6대)</span></label>
+    <label class="item"><input type="checkbox" data-k="cs-cloth"><span class="name">테이블보</span><span class="qty">4장</span></label>
+  </div>
+
+  <div class="card bld">
+    <h3>청주 3캠 M11 <span class="done-badge">완료</span></h3>
+    <div class="where">캡슐머신 6대 · 메시지월 3m</div>
+    <label class="item"><input type="checkbox" data-k="cm-hot"><span class="name">핫팩 세트</span><span class="qty">100개</span></label>
+    <label class="item"><input type="checkbox" data-k="cm-oral"><span class="name">구강케어 세트</span><span class="qty">100개</span></label>
+    <label class="item"><input type="checkbox" data-k="cm-haribo"><span class="name">하리보<small>4가지 맛 고르게 (맛별 수량은 정확하지 않아도 OK)</small></span><span class="qty">300개</span></label>
+    <label class="item"><input type="checkbox" data-k="cm-xb"><span class="name">X배너 일반형<small>조혜미 TL 인계용으로 따로 묶기</small></span><span class="qty">2개</span></label>
+    <label class="item"><input type="checkbox" data-k="cm-coin"><span class="name">아크릴 코인 보관통</span><span class="qty">1개</span></label>
+    <label class="item"><input type="checkbox" data-k="cm-tag"><span class="name">STAFF 명찰</span><span class="qty">4개</span></label>
+    <label class="item"><input type="checkbox" data-k="cm-a4"><span class="name">참여 안내 A4 + 거치대</span><span class="qty">각 2개</span></label>
+    <label class="item"><input type="checkbox" data-k="cm-box"><span class="name">검은 아크릴 박스 + 화이트 마카</span><span class="qty">각 1개</span></label>
+    <label class="item"><input type="checkbox" data-k="cm-capsule"><span class="name">캡슐 박스 (업체 포장 그대로)<small>핫팩 100 · 양치 100 · 젤리 300 = 500개</small></span><span class="qty">3박스</span></label>
+    <label class="item"><input type="checkbox" data-k="cm-token"><span class="name">코인<small>업체 포장 그대로 · 조혜미 TL 인계용으로 따로 묶기</small></span><span class="qty">600개</span></label>
+    <label class="item"><input type="checkbox" data-k="cm-machine"><span class="name">캡슐머신 (2단)</span><span class="qty">3세트 (6대)</span></label>
+    <label class="item"><input type="checkbox" data-k="cm-cloth"><span class="name">테이블보</span><span class="qty">4장</span></label>
+  </div>
+
+  <div class="card bld">
+    <h3>청주 2캠 P&amp;T3 <span class="done-badge">완료</span></h3>
+    <div class="where">캡슐머신 6대 · 메시지월 2m</div>
+    <label class="item"><input type="checkbox" data-k="cp-hot"><span class="name">핫팩 세트</span><span class="qty">100개</span></label>
+    <label class="item"><input type="checkbox" data-k="cp-oral"><span class="name">구강케어 세트</span><span class="qty">100개</span></label>
+    <label class="item"><input type="checkbox" data-k="cp-haribo"><span class="name">하리보<small>4가지 맛 고르게 (맛별 수량은 정확하지 않아도 OK)</small></span><span class="qty">300개</span></label>
+    <label class="item"><input type="checkbox" data-k="cp-xb"><span class="name">X배너 일반형<small>조혜미 TL 인계용으로 따로 묶기</small></span><span class="qty">1개</span></label>
+    <label class="item"><input type="checkbox" data-k="cp-coin"><span class="name">아크릴 코인 보관통</span><span class="qty">1개</span></label>
+    <label class="item"><input type="checkbox" data-k="cp-tag"><span class="name">STAFF 명찰</span><span class="qty">4개</span></label>
+    <label class="item"><input type="checkbox" data-k="cp-a4"><span class="name">참여 안내 A4 + 거치대</span><span class="qty">각 2개</span></label>
+    <label class="item"><input type="checkbox" data-k="cp-box"><span class="name">검은 아크릴 박스 + 화이트 마카</span><span class="qty">각 1개</span></label>
+    <label class="item"><input type="checkbox" data-k="cp-capsule"><span class="name">캡슐 박스 (업체 포장 그대로)<small>핫팩 100 · 양치 100 · 젤리 300 = 500개</small></span><span class="qty">3박스</span></label>
+    <label class="item"><input type="checkbox" data-k="cp-token"><span class="name">코인<small>업체 포장 그대로 · 조혜미 TL 인계용으로 따로 묶기</small></span><span class="qty">600개</span></label>
+    <label class="item"><input type="checkbox" data-k="cp-machine"><span class="name">캡슐머신 (2단)</span><span class="qty">3세트 (6대)</span></label>
+    <label class="item"><input type="checkbox" data-k="cp-cloth"><span class="name">테이블보</span><span class="qty">4장</span></label>
+  </div>
+
+  <div class="note">청주 합계: 핫팩 330 · 구강케어 330 · 하리보 900 · X배너 8 (일반형 5 + 로비 안내형 3) · 보관통 3 · 캡슐머신 9세트(18대) · 테이블보 12 · 코인 1,800<br>캡슐 박스 9 (건물별 3박스씩) · 빈 캡슐 박스 없음</div>
+</section>
+
+<!-- 정영 선임 인수인계 가이드 -->
+<section id="guide">
+  <h2 class="guide-title">정영 선임 인수인계 가이드</h2>
+  <p class="meta" style="margin:0 0 4px">청주 3개 건물(4캠 SUPEX CENTER · 3캠 M11 · 2캠 P&amp;T3) 세팅·운영 담당 · 출처: SK하이닉스 업체 출입 안내 (11/17)</p>
+
+  <div class="note warn">
+    <b>마감: 11/19(목)까지</b><br>
+    출입하는 사람 <b>모두</b> 방문 예약 신청을 마쳐야 해요. 늦어지면 조혜미 TL에게 바로 연락해야 해요.
+  </div>
+
+  <h2>1. 방문 출입 신청 (순서대로)</h2>
+  <div class="card">
+    <label class="item"><input type="checkbox" data-k="g-join"><span class="name">SK하이닉스 방문예약 홈페이지 회원 가입<small>welcome.skhynix.com · 휴대폰 본인 명의 인증 필수</small></span><span class="qty">1</span></label>
+    <label class="item"><input type="checkbox" data-k="g-edu"><span class="name">유해화학물질 종사자 교육 이수<small>약 2시간 · 이수 방법은 메일 첨부파일 참고</small></span><span class="qty">2</span></label>
+    <label class="item"><input type="checkbox" data-k="g-cert"><span class="name">교육 수료증 등록<small>등록 방법은 메일 첨부파일 참고</small></span><span class="qty">3</span></label>
+    <label class="item"><input type="checkbox" data-k="g-visit"><span class="name">방문예약 신청<small>로그인 후 출입관리 → 방문예약 신청 · 한 명이 여러 방문객을 함께 신청할 수 있어요</small></span><span class="qty">4</span></label>
+    <label class="item"><input type="checkbox" data-k="g-goods"><span class="name">물품반입 신청<small>물품출입 → 업체물품 반입신청 · 아래 3번 참고</small></span><span class="qty">5</span></label>
+    <p class="meta" style="margin:10px 0 0">본인 사진이 필요해요. 사진 규정은 출입 안내 자료를 확인해 주세요.</p>
+  </div>
+
+  <h2>2. 방문예약 입력 내용</h2>
+  <div class="card">
+    <table class="places">
+      <colgroup><col style="width:96px"><col></colgroup>
+      <tr><th>항목</th><th>입력</th></tr>
+      <tr><td>하이닉스 담당자</td><td>조혜미 TL (이메일은 김석윤에게 받기)</td></tr>
+      <tr><td>방문 목적</td><td>업무 – <b>비작업 도급</b> 선택</td></tr>
+      <tr><td>방문 기간</td><td>11/23 ~ 11/25 · 방문(체류)시간 24시간</td></tr>
+      <tr><td>방문 사유</td><td>SK하이닉스 양산총괄 땡스데이 행사 세팅·운영을 위한 방문</td></tr>
+      <tr><td>기타</td><td><b>사외 방문객 주차장 신청</b> 체크</td></tr>
+    </table>
+    <div class="note warn" style="margin-bottom:0">
+      <b>체크하면 안 되는 것</b><br>
+      · FAB 출입 여부<br>
+      · 유해화학물질 취급작업 여부<br>
+      사외주차장 비용이 생기면 나중에 하이닉스로 청구해요. 조혜미 TL이 승인하면 신청이 끝나요.
+    </div>
+  </div>
+
+  <h2>3. 물품반입 신청</h2>
+  <div class="card">
+    <p class="meta" style="margin:0 0 8px">흐름: 11/23 반입 → 외곽 게이트 보안요원이 반입 처리(반출증 자동 생성) → 11/25 반출 때 반입증 필요</p>
+    <table class="places">
+      <colgroup><col style="width:96px"><col></colgroup>
+      <tr><th>항목</th><th>입력</th></tr>
+      <tr><td>반입물품 분류</td><td>지입자재</td></tr>
+      <tr><td>반입건물</td><td>(청주) P&amp;T3, M11, SUPEX CENTER</td></tr>
+      <tr><td>반입사유(구분)</td><td>기타</td></tr>
+      <tr><td>구분</td><td>반출 필요: 반입/반출 · 반출 불필요: 반입/미반출</td></tr>
+      <tr><td>반입사유</td><td>양산총괄 구성원 참여 부스 세팅을 위한 물품 반입</td></tr>
+      <tr><td>반출예정</td><td>단기(3개월 이내)</td></tr>
+      <tr><td>물품정보</td><td>직접 입력</td></tr>
+    </table>
+    <h2 class="sub">물품별 신청 구분</h2>
+    <table>
+      <tr><th>구분</th><th>물품</th></tr>
+      <tr><td>반입/반출</td><td>캡슐머신</td></tr>
+      <tr><td>반입/미반출</td><td>허니콤보드, 캡슐, 사은품</td></tr>
+      <tr><td>반입/미반출</td><td>포스트잇, 코인박스, 배너, 빈 캡슐 수거함, L거치대</td></tr>
+    </table>
+    <div class="note" style="margin-bottom:0">
+      · 이천과 청주는 <b>따로</b> 신청해요. 청주는 2·3·4캠퍼스에 각각 반입하니 캠퍼스별로 나눠 신청해요 (이천 포함 총 6건).<br>
+      · 테이블보·배너 거치대·카트·코인은 청주에서는 조혜미 TL이 차량으로 반입할 예정이에요.<br>
+      · 하이닉스 총무팀이 옮기는 물품은 <b>물품반입증 PDF를 조혜미 TL에게 미리 공유</b>해야 해요.
+    </div>
+  </div>
+
+  <h2>4. 방문 당일 챙길 서류</h2>
+  <div class="card">
+    <label class="item"><input type="checkbox" data-k="g-doc-nhr"><span class="name">NHR 정직원<small>명함 또는 사원증</small></span><span class="qty">증빙</span></label>
+    <label class="item"><input type="checkbox" data-k="g-doc-pt"><span class="name">아르바이트생<small>표준근로계약서 · 서류 제목 지키기 · 컬러 출력 · 주민번호 뒷자리 등 민감정보 가리기</small></span><span class="qty">증빙</span></label>
+  </div>
+
+  <h2>5. 11/23(월) 청주 도착 · 입문 경로</h2>
+  <div class="card">
+    <ol class="steps">
+      <li><b>도착:</b> SK하이닉스 청주3공장 정문 (충북 청주시 흥덕구 직지대로 337). 도착 직전 조혜미 TL에게 연락해요.</li>
+      <li><b>주차:</b> 통근버스 주차장(사업장 밖)에 주차해요.</li>
+      <li><b>물품 인계:</b> 방문객실 앞에서 총무팀에 인계해요. 코인·배너 등은 조혜미 TL에게 인계해요.</li>
+      <li><b>출입 절차:</b> 방문객실에서 출입 절차를 밟아요.</li>
+      <li><b>부스 세팅:</b> 조혜미 TL과 함께 이동하며 세팅해요. 순서는 <b>3캠(M11) → 2캠(P&amp;T3) → 4캠(SUPEX CENTER)</b>.</li>
+    </ol>
+    <p class="meta" style="margin:10px 0 0">11/23 청주 하이닉스 담당: 조혜미 TL (부담당 박흥근 TL). 연락처는 김석윤이 따로 전달해요.</p>
+  </div>
+
+  <h2>6. 일정</h2>
+  <div class="card">
+    <table class="places">
+      <colgroup><col style="width:96px"><col></colgroup>
+      <tr><th>날짜</th><th>내용</th></tr>
+      <tr><td><b>11/23(월)</b></td><td>설치 · 3캠 M11 → 2캠 P&amp;T3 → 4캠 SUPEX CENTER 순서<br><span class="meta">포스트잇(지와이컴퍼니)은 세팅 중 받을 예정 · 받는 방법은 김석윤 확인</span></td></tr>
+      <tr><td><b>11/24(화)</b></td><td>주간 10:00~16:00<br><b>야간 22:00~23:30</b> (이날만)</td></tr>
+      <tr><td><b>11/25(수)</b></td><td>주간 10:00~16:00 (야간 없음)<br>운영 종료 후 철거 <span class="meta">· 16시 이후 바로 철거 가능한지 확인 중</span></td></tr>
+    </table>
+  </div>
+
+  <h2>7. 건물별 세팅 내용</h2>
+  <div class="card">
+    <h3>3캠 M11 <span class="meta">(세팅 1번째)</span></h3>
+    <p class="meta" style="margin:2px 0 0">캡슐머신 3세트(6대) · 메시지월 3m · X배너 일반형 2 · 코인 보관통 1 · 참여 안내 A4 2 · 테이블보 4 · 검은 아크릴 박스 1</p>
+  </div>
+  <div class="card">
+    <h3>2캠 P&amp;T3 <span class="meta">(세팅 2번째)</span></h3>
+    <p class="meta" style="margin:2px 0 0">캡슐머신 3세트(6대) · 메시지월 2m · X배너 일반형 1 · 코인 보관통 1 · 참여 안내 A4 2 · 테이블보 4 · 검은 아크릴 박스 1</p>
+  </div>
+  <div class="card">
+    <h3>4캠 SUPEX CENTER <span class="meta">(세팅 3번째)</span></h3>
+    <p class="meta" style="margin:2px 0 0">캡슐머신 3세트(6대) · 메시지월 2m · X배너 일반형 2 + 로비 안내형 3 (식당 2 · M15X 1층 1) · 코인 보관통 1 · 참여 안내 A4 2 · 테이블보 4 · 검은 아크릴 박스 1</p>
+  </div>
+
+  <h2>8. 인력</h2>
+  <div class="card">
+    <p style="margin:0">· 부스마다 <b>현장 스태프 2명</b> 상주 (비타민). 4캠 SUPEX CENTER에는 비타민 매니저가 포함돼요.<br>
+    · 하이닉스 인력 2명은 <b>11:00~13:00</b>에만 함께해요.<br>
+    · 스태프 명찰은 부스당 4개씩 챙겨 가요 (1개 여유분).</p>
+  </div>
+
+  <h2>9. 참여 방법 (구성원 안내)</h2>
+  <div class="card">
+    <ol class="steps">
+      <li>팀·동료에게 <b>감사 메시지 작성</b> → 코인 1개 받기</li>
+      <li>메시지월에 메시지 <b>부착</b></li>
+      <li>코인으로 <b>랜덤 캡슐 뽑기</b></li>
+      <li>캡슐 속 <b>선물명을 스태프에게 보여 주고 선물 받기</b></li>
+    </ol>
+    <p class="meta" style="margin:10px 0 0">※ 1인 1회 참여 · ※ 캡슐 속 임원의 감사 메시지도 확인 · ※ 메시지를 쓰면 12월 양산총괄 소통행사 경품 추첨에 자동 응모돼요.</p>
+  </div>
+
+  <h2>10. 운영 규칙</h2>
+  <div class="card">
+    <p style="margin:0">· <b>선착순</b>이에요. 준비된 선물이 다 떨어지면 그 건물은 행사를 마쳐요.<br>
+    · 캡슐 속 기념품 메시지 = 받을 선물이에요. 핫팩 · 양치(구강케어) 세트 · 젤리(하리보) 3종.<br>
+    · 붙인 메시지는 <b>화요일 → 수요일로 넘어갈 때 떼지 않아요.</b><br>
+    · 떨어진 메시지는 검은 아크릴 박스에 따로 보관해요. 메시지는 12월 본행사에 쓰이니 <b>훼손·분실되지 않게</b> 관리해 주세요.</p>
+  </div>
+
+  <h2>11. 청주 선물 수량</h2>
+  <div class="card">
+    <table>
+      <tr><th>건물</th><th style="text-align:right">핫팩</th><th style="text-align:right">구강</th><th style="text-align:right">하리보</th><th style="text-align:right">캡슐</th></tr>
+      <tr><td>4캠 SUPEX</td><td class="n">130</td><td class="n">130</td><td class="n">300</td><td class="n">560</td></tr>
+      <tr><td>3캠 M11</td><td class="n">100</td><td class="n">100</td><td class="n">300</td><td class="n">500</td></tr>
+      <tr><td>2캠 P&amp;T3</td><td class="n">100</td><td class="n">100</td><td class="n">300</td><td class="n">500</td></tr>
+      <tr><th>합계</th><td class="n">330</td><td class="n">330</td><td class="n">900</td><td class="n">1,560</td></tr>
+    </table>
+    <p class="meta" style="margin:8px 0 0">캡슐 수 = 선물 수예요. 캡슐 박스 겉면에 건물명과 선물 종류가 적혀 있어요.</p>
+  </div>
+</section>
+
+<button class="reset" type="button">체크 모두 지우기</button>
+<footer>체크 표시는 이 휴대폰에만 저장돼요. 다른 사람 화면에는 보이지 않아요.</footer>
+</div>
+
+<script>
+(function(){
+  var KEY = "thanksday-check-261120";
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch(e) { state = {}; }
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {} }
+
+  var boxes = document.querySelectorAll('input[type="checkbox"][data-k]');
+  boxes.forEach(function(b){
+    b.checked = !!state[b.dataset.k];
+    b.addEventListener("change", function(){ state[b.dataset.k] = b.checked; save(); refresh(); });
+  });
+
+  function refresh(){
+    document.querySelectorAll(".card").forEach(function(c){
+      var all = c.querySelectorAll("input[data-k]");
+      if (!all.length) return;
+      var on = c.querySelectorAll("input[data-k]:checked").length;
+      c.classList.toggle("done", on === all.length);
+    });
+    ["icheon","cheongju"].forEach(function(id){
+      var s = document.getElementById(id);
+      var all = s.querySelectorAll("input[data-k]").length;
+      var on = s.querySelectorAll("input[data-k]:checked").length;
+      s.querySelector(".count").textContent = on + " / " + all;
+      s.querySelector(".bar i").style.width = (all ? on / all * 100 : 0) + "%";
+    });
+  }
+
+  var tabs = document.querySelectorAll("nav button");
+  function show(id){
+    tabs.forEach(function(t){ t.setAttribute("aria-selected", t.dataset.tab === id ? "true" : "false"); });
+    document.querySelectorAll("section").forEach(function(s){ s.classList.toggle("on", s.id === id); });
+    try { sessionStorage.setItem(KEY + "-tab", id); } catch(e) {}
+    window.scrollTo(0, 0);
+  }
+  tabs.forEach(function(t){ t.addEventListener("click", function(){ show(t.dataset.tab); }); });
+  var hash = (location.hash || "").replace("#", "");
+  var last = null; try { last = sessionStorage.getItem(KEY + "-tab"); } catch(e) {}
+  if (["common","icheon","cheongju","guide"].indexOf(hash) >= 0) show(hash);
+  else if (last) show(last);
+
+  document.querySelector(".reset").addEventListener("click", function(){
+    if (!confirm("체크 표시를 모두 지울까요?")) return;
+    state = {}; save();
+    boxes.forEach(function(b){ b.checked = false; });
+    refresh();
+  });
+
+  refresh();
+})();
+</script>
+</body>
+</html>
